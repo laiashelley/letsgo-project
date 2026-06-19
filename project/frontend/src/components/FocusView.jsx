@@ -2,17 +2,35 @@ import { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { playPop, playSuccess } from '../sound';
 
-export default function FocusView({ steps, currentIndex, onComplete, onReset, onReplaceStep, currentTaskName, t, theme, toggleTheme, soundEnabled, toggleSound, language }) {
+export default function FocusView({ steps, currentIndex, onComplete, onReset, onReplaceStep, currentTaskName, lastStepPoints, userName, t, theme, toggleTheme, soundEnabled, toggleSound, language }) {
   const [message, setMessage] = useState(t.motivational[0]);
   const [stepStartTime, setStepStartTime] = useState(Date.now());
   const [isGenerating, setIsGenerating] = useState(false);
+  const [confirmingReset, setConfirmingReset] = useState(false);
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [showFocusTip, setShowFocusTip] = useState(true);
+
+  const firstName = userName ? userName.split(' ')[0] : '';
+
+  const formatElapsed = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => setTimeElapsed(s => s + 1), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Change motivational message when advancing a step
   useEffect(() => {
     if (currentIndex > 0) {
       const randomMsg = t.motivational[Math.floor(Math.random() * t.motivational.length)];
       setMessage(randomMsg);
+      setShowFocusTip(false);
     }
+    setTimeElapsed(0);
     setStepStartTime(Date.now());
   }, [currentIndex, t]);
 
@@ -20,6 +38,15 @@ export default function FocusView({ steps, currentIndex, onComplete, onReset, on
   const total = steps.length;
   const progress = Math.round(((currentIndex) / total) * 100);
   const isLastStep = currentIndex + 1 === total;
+
+  const handleResetClick = () => {
+    if (!confirmingReset) {
+      setConfirmingReset(true);
+      setTimeout(() => setConfirmingReset(false), 3000);
+    } else {
+      onReset();
+    }
+  };
 
   const handleComplete = () => {
     const timeSpentInSeconds = Math.max(0, Math.floor((Date.now() - stepStartTime) / 1000));
@@ -45,7 +72,7 @@ export default function FocusView({ steps, currentIndex, onComplete, onReset, on
         await new Promise((r) => setTimeout(r, 1000));
         onReplaceStep("Hazlo de una manera distinta y súper fácil: " + currentStep.slice(0, 15) + "...");
       } else {
-        const response = await fetch('http://localhost:3000/api/letsgo/v1/alternate', {
+        const response = await fetch('/api/letsgo/v1/alternate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ task: currentTaskName, currentStep, language }),
@@ -104,13 +131,29 @@ export default function FocusView({ steps, currentIndex, onComplete, onReset, on
         />
       </div>
 
+      {/* Focus tip — shown only on step 0 */}
+      {showFocusTip && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-xl px-4 py-3 flex items-center justify-between gap-3 -mt-2">
+          <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">💡 {t.focusTip}</p>
+          <button
+            onClick={() => setShowFocusTip(false)}
+            className="shrink-0 text-amber-400 hover:text-amber-600 dark:hover:text-amber-200 font-bold text-sm transition-colors"
+          >
+            {t.focusTipDismiss}
+          </button>
+        </div>
+      )}
+
       {/* Current step */}
       <div className="bg-gray-50 dark:bg-zinc-800/80 border border-gray-200 dark:border-zinc-700/50 rounded-2xl p-8 min-h-[160px] flex flex-col items-center justify-center relative shadow-lg transition-colors duration-300">
         {currentIndex > 0 && (
           <span className="absolute top-3 text-xs font-bold text-emerald-500 dark:text-emerald-400 animate-pulse">
-            {message} (+10 pts)
+            {message.replace('{name}', firstName)} (+{lastStepPoints} pts)
           </span>
         )}
+        <div className="absolute bottom-3 right-3 text-xs text-gray-400 dark:text-zinc-600 font-mono tabular-nums">
+          ⏱ {formatElapsed(timeElapsed)}
+        </div>
         <p className="text-xl font-medium text-gray-900 dark:text-zinc-100 text-center leading-relaxed mt-4">
           {isGenerating ? (
             <span className="flex items-center justify-center gap-2 text-indigo-500 animate-pulse">
@@ -162,10 +205,14 @@ export default function FocusView({ steps, currentIndex, onComplete, onReset, on
         </button>
 
         <button
-          onClick={onReset}
-          className="w-full text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 text-sm py-2 transition-colors font-medium"
+          onClick={handleResetClick}
+          className={`w-full text-sm py-2 transition-colors font-medium ${
+            confirmingReset
+              ? 'text-red-400 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300'
+              : 'text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300'
+          }`}
         >
-          {t.startOver}
+          {confirmingReset ? (t.confirmReset || '¿Seguro? Pulsa otra vez') : t.startOver}
         </button>
       </div>
     </div>

@@ -43,18 +43,22 @@ export const translations = {
     minutes: "min",
     seconds: "seg",
     suggestAnother: "Sugiéreme otra cosa",
+    focusTip: "Silencia el móvil y cierra otras pestañas para concentrarte mejor.",
+    focusTipDismiss: "Listo",
     missionAccomplished: "¡Misión Cumplida!",
     takeABreath: "Tómate un respiro antes de seguir.",
     skipRest: "Saltar descanso (Tengo prisa)",
     levelRequired: "Nivel {reqLevel} requerido",
+    stepsLabel: "pasos",
+    confirmReset: "¿Seguro? Pulsa otra vez",
 
     // Motivation messages
     motivational: [
-      "¡Vas por muy buen camino!",
+      "¡Vas por muy buen camino, {name}!",
       "¡Un pasito menos!",
-      "¡Lo estás haciendo genial!",
+      "¡Lo estás haciendo genial, {name}!",
       "¡Poco a poco, sin prisa!",
-      "¡Eso es! Sigue así.",
+      "¡Eso es, {name}! Sigue así.",
       "¡Muy bien! Tómate un respiro si lo necesitas."
     ],
 
@@ -107,17 +111,21 @@ export const translations = {
     minutes: "min",
     seconds: "sec",
     suggestAnother: "Suggest something else",
+    focusTip: "Silence your phone and close other tabs to stay focused.",
+    focusTipDismiss: "Got it",
     missionAccomplished: "Mission Accomplished!",
     takeABreath: "Take a breath before continuing.",
     skipRest: "Skip rest (I'm in a hurry)",
     levelRequired: "Level {reqLevel} required",
+    stepsLabel: "steps",
+    confirmReset: "Sure? Press again",
 
     motivational: [
-      "You are on the right track!",
+      "You are on the right track, {name}!",
       "One less step!",
-      "You're doing great!",
+      "You're doing great, {name}!",
       "Little by little, no rush!",
-      "That's it! Keep it up.",
+      "That's it, {name}! Keep it up.",
       "Very good! Take a break if you need it."
     ],
 
@@ -169,17 +177,21 @@ export const translations = {
     minutes: "min",
     seconds: "seg",
     suggestAnother: "Suggereix-me una altra cosa",
+    focusTip: "Silencia el mòbil i tanca les altres pestanyes per concentrar-te millor.",
+    focusTipDismiss: "Fet",
     missionAccomplished: "Missió Complerta!",
     takeABreath: "Pren-te un respir abans de seguir.",
     skipRest: "Saltar descans (Tinc pressa)",
     levelRequired: "Nivell {reqLevel} requerit",
+    stepsLabel: "passos",
+    confirmReset: "Segur? Torna a prémer",
 
     motivational: [
-      "Vas per molt bon camí!",
+      "Vas per molt bon camí, {name}!",
       "Un passet menys!",
-      "Ho estàs fent genial!",
+      "Ho estàs fent genial, {name}!",
       "A poc a poc, sense pressa!",
-      "Això és! Continua així.",
+      "Això és, {name}! Continua així.",
       "Molt bé! Pren-te un respir si ho necessites."
     ],
 

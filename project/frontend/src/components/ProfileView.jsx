@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-
-const AVATARS = ['🦊', '🦉', '🐢', '🦖', '🚀', '🌟', '👾', '🌈'];
-const AVATAR_LEVELS = { '🦊': 1, '🦉': 1, '🐢': 1, '🦖': 1, '🚀': 3, '🌟': 5, '👾': 10, '🌈': 15 };
-
-const LANGUAGES = [
-  { code: 'es', label: 'Español' },
-  { code: 'en', label: 'English' },
-  { code: 'ca', label: 'Català' },
-];
+import { AVATARS, AVATAR_LEVELS, LANGUAGE_OPTIONS as LANGUAGES } from '../constants';
 
 export default function ProfileView({ profile, score, history, onBack, onChangeAvatar, t, theme, toggleTheme, soundEnabled, toggleSound, language, onChangeLanguage }) {
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -134,7 +126,7 @@ export default function ProfileView({ profile, score, history, onBack, onChangeA
             {isEditingAvatar && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsEditingAvatar(false)} />
-                <div className="absolute top-full left-0 mt-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl p-3 z-50 flex gap-2 flex-wrap w-[220px]">
+                <div className="absolute top-full left-0 mt-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl p-3 z-50 flex gap-2 flex-wrap w-[min(220px,calc(100vw-3rem))]">
                   {AVATARS.map(a => {
                     const reqLevel = AVATAR_LEVELS[a];
                     const isLocked = level < reqLevel;
@@ -253,7 +245,7 @@ export default function ProfileView({ profile, score, history, onBack, onChangeA
                         ))}
                       </ul>
                       <div className="flex justify-between text-xs text-gray-500 dark:text-zinc-500 mt-3 pt-2 border-t border-gray-200/50 dark:border-zinc-700/30">
-                        <span>{item.steps.length} {t.pointsPerStep ? t.pointsPerStep.toLowerCase() : 'pasos'} (10 pts)</span>
+                        <span>{item.steps.length} {t.stepsLabel || 'pasos'} (10 pts)</span>
                         <span>{t.bonus}: 50 pts</span>
                       </div>
                     </div>

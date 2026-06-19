@@ -1,13 +1,23 @@
-import { useState } from 'react';
-
-const LANGUAGE_OPTIONS = [
-  { code: 'es', flag: 'ES' },
-  { code: 'en', flag: 'EN' },
-  { code: 'ca', flag: 'CA' },
-];
+import { useState, useEffect, useRef } from 'react';
+import { LANGUAGE_OPTIONS } from '../constants';
 
 export default function CaptureView({ onSubmit, loading, error, score, userProfile, onShowProfile, t, theme, toggleTheme, language, onChangeLanguage, soundEnabled, toggleSound }) {
   const [task, setTask] = useState('');
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const langRef = useRef(null);
+
+  useEffect(() => {
+    if (!langMenuOpen) return;
+    const handleOutside = (e) => {
+      if (langRef.current && !langRef.current.contains(e.target)) setLangMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [langMenuOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,27 +58,31 @@ export default function CaptureView({ onSubmit, loading, error, score, userProfi
           </button>
 
           {/* Language quick-switch */}
-          <div className="relative group">
+          <div className="relative" ref={langRef}>
             <button
+              onClick={() => setLangMenuOpen(prev => !prev)}
               className="flex flex-col items-center justify-center bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 rounded-xl px-3 py-2 transition-all min-w-[52px] h-full"
               aria-label="Change language"
             >
-              <span className="text-xs font-bold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">{LANGUAGE_OPTIONS.find(l => l.code === language)?.flag || '🌍'}</span>
+              <span className="text-xs font-bold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center shadow-sm transition-transform">
+                {LANGUAGE_OPTIONS.find(l => l.code === language)?.flag || '🌍'}
+              </span>
             </button>
-            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl p-1.5 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all z-50 min-w-[52px]">
-              {LANGUAGE_OPTIONS.map(lang => (
-                <button
-                  key={lang.code}
-                  onClick={() => onChangeLanguage(lang.code)}
-                  className={`block w-full text-center p-1.5 rounded-lg text-base transition-all ${language === lang.code
-                      ? 'bg-indigo-500/20'
-                      : 'hover:bg-gray-100 dark:hover:bg-zinc-700'
+            {langMenuOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl p-1.5 z-50 min-w-[52px]">
+                {LANGUAGE_OPTIONS.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => { onChangeLanguage(lang.code); setLangMenuOpen(false); }}
+                    className={`block w-full text-center p-1.5 rounded-lg text-base transition-all ${
+                      language === lang.code ? 'bg-indigo-500/20' : 'hover:bg-gray-100 dark:hover:bg-zinc-700'
                     }`}
-                >
-                  <span className="text-xs font-bold">{lang.flag}</span>
-                </button>
-              ))}
-            </div>
+                  >
+                    <span className="text-xs font-bold">{lang.flag}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Profile button */}

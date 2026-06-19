@@ -1,16 +1,9 @@
 import { useState } from 'react';
-
-const AVATARS = ['🦊', '🦉', '🐢', '🦖', '🚀', '🌟', '👾', '🌈'];
-
-const LANGUAGE_OPTIONS = [
-  { code: 'es', label: 'Español', flag: 'ES' },
-  { code: 'en', label: 'English', flag: 'EN' },
-  { code: 'ca', label: 'Català', flag: 'CA' },
-];
+import { STARTER_AVATARS, LANGUAGE_OPTIONS } from '../constants';
 
 export default function WelcomeView({ onComplete, t, theme, toggleTheme, language, onChangeLanguage, soundEnabled, toggleSound }) {
   const [name, setName] = useState('');
-  const [avatar, setAvatar] = useState(AVATARS[0]);
+  const [avatar, setAvatar] = useState(STARTER_AVATARS[0]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -77,7 +70,7 @@ export default function WelcomeView({ onComplete, t, theme, toggleTheme, languag
             {t.chooseAvatar}
           </label>
           <div className="flex flex-wrap justify-center gap-3">
-            {AVATARS.map((a) => (
+            {STARTER_AVATARS.map((a) => (
               <button
                 key={a}
                 type="button"

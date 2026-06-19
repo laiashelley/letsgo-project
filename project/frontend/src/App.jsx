@@ -33,6 +33,7 @@ export default function App() {
   const [currentTaskName, setCurrentTaskName] = useState('');
   const [taskTimeSpent, setTaskTimeSpent] = useState(0);
   const [taskPoints, setTaskPoints] = useState(0);
+  const [lastStepPoints, setLastStepPoints] = useState(0);
 
   // Profile state (null means not set up yet)
   const [userProfile, setUserProfile] = useState(null);
@@ -170,7 +171,7 @@ export default function App() {
         await new Promise((r) => setTimeout(r, 1500));
         newSteps = t.mockSteps.map(step => step.replace('{task}', task.slice(0, 30)));
       } else {
-        const response = await fetch('http://localhost:3000/api/letsgo/v1/breakdown', {
+        const response = await fetch('/api/letsgo/v1/breakdown', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ task, language }),
@@ -204,6 +205,7 @@ export default function App() {
     const effortBonus = Math.floor(stepTimeInSeconds / 60) * 2;
     const stepPoints = Math.min(20, 10 + effortBonus);
 
+    setLastStepPoints(stepPoints);
     setScore(prev => prev + stepPoints);
     setTaskPoints(prev => prev + stepPoints);
 
@@ -285,6 +287,8 @@ export default function App() {
             currentIndex={currentIndex}
             onComplete={handleStepComplete}
             onReset={handleReset}
+            lastStepPoints={lastStepPoints}
+            userName={userProfile?.name}
             onReplaceStep={(newStep) => {
               setSteps(prev => {
                 const updated = [...prev];
