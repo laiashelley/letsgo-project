@@ -1,7 +1,7 @@
 {
-  "name": "venga-frontend",
+  "name": "letsgo-frontend",
   "version": "1.0.0",
-  "description": "Vite + React PWA frontend for Venga task manager",
+  "description": "Vite + React PWA frontend for Let's Go task manager",
   "type": "module",
   "scripts": {
     "dev": "node node_modules/vite/bin/vite.js",

@@ -1,4 +1,4 @@
-# Un-Jira Backend
+# Let's Go Backend
 
 Express.js proxy server that interfaces with the Gemini API to decompose tasks into atomic steps.
 
@@ -41,10 +41,10 @@ Health check endpoint.
 
 **Response:**
 ```json
-{ "status": "ok", "service": "un-jira-backend" }
+{ "status": "ok", "service": "letsgo-backend" }
 ```
 
-### POST /api/un-jira/v1/breakdown
+### POST /api/letsgo/v1/breakdown
 Decomposes a task into atomic steps.
 
 **Request:**
@@ -80,7 +80,7 @@ Decomposes a task into atomic steps.
 ## Testing with curl
 
 ```bash
-curl -X POST http://localhost:3000/api/un-jira/v1/breakdown \
+curl -X POST http://localhost:3000/api/letsgo/v1/breakdown \
   -H "Content-Type: application/json" \
   -d '{"task":"Write a blog post about ADHD"}'
 ```

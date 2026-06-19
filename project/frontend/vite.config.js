@@ -8,8 +8,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Venga',
-        short_name: 'Venga',
+        name: "Let's Go",
+        short_name: "Let's Go",
         description: 'Anti-paralysis task manager for ADHD',
         theme_color: '#000000',
         background_color: '#ffffff',

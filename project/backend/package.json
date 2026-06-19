@@ -1,7 +1,7 @@
 {
-  "name": "venga-backend",
+  "name": "letsgo-backend",
   "version": "1.0.0",
-  "description": "Express proxy backend for Venga task decomposition",
+  "description": "Express proxy backend for Let's Go task decomposition",
   "type": "module",
   "main": "index.js",
   "scripts": {

@@ -22,7 +22,7 @@ app.use(express.json());
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'venga-backend' });
+  res.json({ status: 'ok', service: 'letsgo-backend' });
 });
 
 /**
@@ -67,11 +67,11 @@ Reglas estrictas:
 Formato de salida: Devuelve EXCLUSIVAMENTE un array JSON plano de strings, sin Markdown, sin bloques de código, solo el JSON.`;
 
 /**
- * POST /api/un-jira/v1/breakdown
+ * POST /api/letsgo/v1/breakdown
  * Accepts a task and returns a decomposed list of atomic steps
  */
-app.post('/api/un-jira/v1/breakdown', async (req, res) => {
-  const { task } = req.body;
+app.post('/api/letsgo/v1/breakdown', async (req, res) => {
+  const { task, language } = req.body;
 
   if (!task || typeof task !== 'string' || task.trim() === '') {
     return res.status(400).json({
@@ -88,7 +88,7 @@ app.post('/api/un-jira/v1/breakdown', async (req, res) => {
           role: 'user',
           parts: [
             {
-              text: `${BREAKDOWN_SYSTEM_PROMPT}\n\nTarea a descomponer: "${task.trim()}"`,
+              text: `${BREAKDOWN_SYSTEM_PROMPT}\n\nINSTRUCCIÓN DE IDIOMA: Responde obligatoriamente y únicamente en el idioma indicado por el código '${language || 'es'}' (es = español, en = inglés, ca = catalán).\n\nTarea a descomponer: "${task.trim()}"`,
             },
           ],
         },
@@ -103,6 +103,69 @@ app.post('/api/un-jira/v1/breakdown', async (req, res) => {
     console.error('Error in /breakdown endpoint:', error);
     res.status(502).json({
       error: 'Failed to process task breakdown',
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * Strict prompt for alternative step generation
+ */
+const ALTERNATE_SYSTEM_PROMPT = `Actúa como un desglosador de tareas optimizado para TDAH severo.
+El usuario se ha bloqueado en el siguiente paso de la tarea.
+Tu objetivo es sugerir UN (1) paso alternativo que sea aún más fácil, ridículamente pequeño o un enfoque diferente para avanzar, de forma que requiera cero esfuerzo mental.
+
+Reglas estrictas:
+1. Devuelve EXCLUSIVAMENTE el texto del nuevo paso. Sin explicaciones adicionales.
+2. Debe poder completarse en menos de 5 minutos.
+3. El formato de salida debe ser un JSON: {"step": "nuevo texto del paso"}.`;
+
+/**
+ * POST /api/letsgo/v1/alternate
+ * Accepts a task, the blocking step, and language, and returns an alternative step
+ */
+app.post('/api/letsgo/v1/alternate', async (req, res) => {
+  const { task, currentStep, language } = req.body;
+
+  if (!task || !currentStep || typeof task !== 'string' || typeof currentStep !== 'string') {
+    return res.status(400).json({
+      error: 'Invalid request. Provide "task" and "currentStep" fields.',
+    });
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text: `${ALTERNATE_SYSTEM_PROMPT}\n\nINSTRUCCIÓN DE IDIOMA: Responde obligatoriamente y únicamente en el idioma indicado por el código '${language || 'es'}' (es = español, en = inglés, ca = catalán).\n\nTarea general: "${task.trim()}"\nPaso bloqueante: "${currentStep.trim()}"`,
+            },
+          ],
+        },
+      ],
+    });
+
+    const rawResponse = result.response.text();
+    let text = rawResponse.trim();
+    text = text.replace(/```(?:json|javascript|js)?\n?/g, '').trim();
+    
+    let newStep = text;
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed.step) newStep = parsed.step;
+    } catch (e) {
+      // Ignore parse error and use raw text as fallback
+    }
+
+    res.json({ step: newStep });
+  } catch (error) {
+    console.error('Error in /alternate endpoint:', error);
+    res.status(502).json({
+      error: 'Failed to process alternative step',
       details: error.message,
     });
   }
@@ -127,6 +190,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Venga backend running on http://localhost:${PORT}`);
-  console.log(`POST /api/un-jira/v1/breakdown — Task decomposition endpoint`);
+  console.log(`Let's Go backend running on http://localhost:${PORT}`);
+  console.log(`POST /api/letsgo/v1/breakdown — Task decomposition endpoint`);
+  console.log(`POST /api/letsgo/v1/alternate — Alternate step endpoint`);
 });
